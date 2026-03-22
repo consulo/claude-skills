@@ -1,0 +1,11 @@
+{
+  "name": "consulo-skills",
+  "description": "Shared Claude Code skills for Consulo projects",
+  "version": "1.0.0",
+  "author": {
+    "name": "consulo"
+  },
+  "homepage": "https://github.com/consulo/claude-skills",
+  "repository": "https://github.com/consulo/claude-skills",
+  "license": "Apache-2.0"
+}
