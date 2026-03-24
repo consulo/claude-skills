@@ -61,7 +61,20 @@ licensed under Apache 2.0 and is **legal to port directly**. Port it faithfully.
   `com.intellij.*` imports for `consulo.*` equivalents, removing Kotlin sugar, adapting to
   Java conventions)
 
-### 3. Missing APIs Must Be Added — Not Worked Around
+### 3. Class Names Must Match JetBrains
+
+**The Consulo class name must be the same as the JetBrains class name in all but the rarest cases.**
+
+- `BlockCodeVisionInlayRenderer` in JB → `BlockCodeVisionInlayRenderer` in Consulo (NOT `CodeVisionBlockInlayRenderer`)
+- `VcsCodeVisionProvider` in JB → `VcsCodeVisionProvider` in Consulo
+- Do NOT rename, reorder words, abbreviate, or restructure the name
+- The only exception is when the exact JB name would conflict with an existing Consulo class
+  that serves a different purpose — and even then, ask the user first
+
+This rule exists so that any engineer can find the Consulo equivalent of a JB class
+by searching for the same name. Renames break this traceability completely.
+
+### 4. Missing APIs Must Be Added — Not Worked Around
 
 **If the JB code uses an API that does not yet exist in Consulo, add the missing API.**
 
@@ -221,3 +234,6 @@ API differences that were encountered.
 - When in doubt about API mapping, search the Consulo source for usage patterns rather than guessing
 - When a JB utility method is used in the target file but doesn't exist in Consulo yet,
   **port the utility method first**, then complete the target file — never inline it
+- **Class names must match JB** — `BlockCodeVisionInlayRenderer` stays `BlockCodeVisionInlayRenderer`,
+  not `CodeVisionBlockInlayRenderer` or any other variation. Search by the JB name to find
+  the Consulo file. Only rename when there is a genuine naming conflict with an existing class.
