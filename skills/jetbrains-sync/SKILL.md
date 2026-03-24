@@ -33,7 +33,9 @@ messages or the system context), you may use that path but confirm it briefly:
 
 ---
 
-## Core Principle: JetBrains Source is the Ground Truth
+## Core Principles
+
+### 1. JetBrains Source is the Ground Truth
 
 **Always read the JetBrains source file first, before looking at or modifying Consulo.**
 
@@ -45,6 +47,37 @@ Consulo's job is to faithfully adapt that implementation to its own API surface 
 
 If the JetBrains code has changed in a way that contradicts what you know or remember, the file
 on disk wins. Read it fresh every time.
+
+### 2. Do NOT Generate Custom Code — Port JB Code As-Is
+
+**Never invent or generate your own logic as a substitute for JB code.** The JetBrains code is
+licensed under Apache 2.0 and is **legal to port directly**. Port it faithfully.
+
+- If JB does X in a specific way, Consulo must do X in the same way — not a "similar" or
+  "equivalent" reimplementation
+- Do not simplify, abbreviate, or restructure JB logic unless the user explicitly asks
+- Do not substitute a JB utility method with an inlined version — port the utility method too
+- The only permitted deviations from JB code are **API-surface replacements** (e.g., swapping
+  `com.intellij.*` imports for `consulo.*` equivalents, removing Kotlin sugar, adapting to
+  Java conventions)
+
+### 3. Missing APIs Must Be Added — Not Worked Around
+
+**If the JB code uses an API that does not yet exist in Consulo, add the missing API.**
+
+Do not:
+- Silently omit the call
+- Inline the JB utility logic at the call site
+- Invent a different approach that achieves "the same result"
+
+Do:
+- Tell the user which API is missing
+- Ask whether to add it (or add it immediately if the answer is obvious)
+- Port the missing API from the JB source to the appropriate Consulo module
+- Then continue porting the original target file using that new API
+
+This applies to utility methods (e.g., `InlayHintsUtils.computeCodeVisionUnderReadAction`),
+interfaces (e.g., `CacheableAnnotationProvider`), service annotations, helper classes, etc.
 
 ---
 
@@ -97,6 +130,10 @@ This is the user's chance to redirect before you write anything.
 ### 5. Apply the Changes
 
 Make the changes to the Consulo file(s). All output code must be **Java**.
+
+**Before editing**, check whether the JB code uses any utilities, interfaces, or APIs that
+don't yet exist in Consulo. If so, port those first (see Core Principle 3 above), then
+proceed with the main file. Never skip a missing dependency and write custom code instead.
 
 Follow these rules while editing:
 
@@ -177,6 +214,10 @@ API differences that were encountered.
 - **Never modify Consulo code based on memory or assumption** — always read the actual JB source file first
 - **Never use Kotlin** — all Consulo output must be Java
 - **Never drop comments** — if JB has a comment explaining why something is done, keep it
-- If a JB feature uses an API that simply doesn't exist in Consulo yet, flag it clearly to
-  the user rather than silently omitting it
+- **Never generate your own logic as a substitute for JB logic** — port the JB code directly;
+  the Apache 2.0 license permits this
+- **If a JB API is missing in Consulo, add it** — do not work around it with custom code.
+  Ask the user if unsure which module it belongs in, then add the API and use it
 - When in doubt about API mapping, search the Consulo source for usage patterns rather than guessing
+- When a JB utility method is used in the target file but doesn't exist in Consulo yet,
+  **port the utility method first**, then complete the target file — never inline it
