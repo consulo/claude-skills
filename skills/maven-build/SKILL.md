@@ -11,7 +11,7 @@ description: >
 ## Full project build
 
 ```
-mvn package -Dmaven.test.skip=true
+mvn package -T 1C -Dmaven.test.skip=true
 ```
 
 ## Run coroutine tests
