@@ -1,12 +1,95 @@
 ---
 name: code-style
 description: >
-  Use this skill whenever Java code is written or reviewed in Consulo. Trigger on: any Java
-  file creation or modification, "code style", "formatting", "null safety", "nullable",
-  "NullMarked", "collection type", "module-info", "opens", or any request to write new Java
-  code, "getInstance", "constructor injection", "field naming", "my prefix", "static field".
-  "var keyword", "final parameter", "method parameter".
-  MUST be used proactively for all Java code produced in this project.
+  Use this skill whenever Java or JavaScript code is written or reviewed in Consulo or the
+  arquill-editor project. Trigger on: any Java or JS file creation or modification, "code style",
+  "formatting", "null safety", "nullable", "NullMarked", "collection type", "module-info",
+  "opens", or any request to write new Java code, "getInstance", "constructor injection",
+  "field naming", "my prefix", "static field", "var keyword", "final parameter",
+  "method parameter", "javascript", "js".
+  MUST be used proactively for all Java and JavaScript code produced in this project.
+---
+
+# Consulo Code Style
+
+---
+
+## JavaScript (arquill-editor)
+
+### Formatting
+
+- **Indent**: 4 spaces (no tabs)
+- **Braces**: opening `{` on the same line
+- **`else` / `catch` / `finally`**: on a new line after the closing `}`
+- **Braces always required** — never omit `{}` even for single-statement bodies
+
+```js
+// ✅ Correct
+if (condition) {
+    doSomething();
+}
+else {
+    doOther();
+}
+
+for (let i = 0; i < items.length; i++) {
+    process(items[i]);
+}
+
+try {
+    riskyCall();
+}
+catch (e) {
+    handle(e);
+}
+
+// ❌ Wrong — else on same line as }
+if (condition) {
+    doSomething();
+} else {
+    doOther();
+}
+
+// ❌ Wrong — no braces
+if (condition)
+    doSomething();
+```
+
+### Variable Declarations
+
+- Prefer `const` for values that are not reassigned; use `let` when reassignment is needed
+- Avoid `var`
+
+```js
+// ✅ Correct
+const result = [];
+let count = 0;
+
+// ❌ Wrong
+var result = [];
+var count = 0;
+```
+
+### Functions
+
+- Use named function declarations, not function expressions assigned to variables, unless attaching to an object/module
+
+```js
+// ✅ Correct — declaration
+function computeInlays(lineText, lineIndex, lineStart) {
+    const hints = [];
+    // ...
+    return hints;
+}
+
+// ✅ Correct — method on object
+const provider = {
+    computeInlays: function(lineText, lineIndex, lineStart) {
+        // ...
+    }
+};
+```
+
 ---
 
 # Consulo Java Code Style
