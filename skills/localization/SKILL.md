@@ -135,6 +135,54 @@ public final class MyFeatureLocalize {
 
 ---
 
+## Rule: Use `LocalizeValue` Instead of `String` for Text-Returning Methods
+
+Any method that returns user-visible text **must** return `consulo.localize.LocalizeValue`,
+not `String`.
+
+```java
+// ❌ Wrong — returning raw String
+public String getTitle() {
+    return "My Feature";
+}
+
+// ✅ Correct — returning LocalizeValue
+public LocalizeValue getTitle() {
+    return MyFeatureLocalize.myFeatureTitle();
+}
+```
+
+---
+
+## Rule: `LocalizeValue` Is Non-Null — Never Return `null`
+
+`LocalizeValue` is always non-null. **Never return `null`** where a `LocalizeValue` is
+expected. Use `LocalizeValue.empty()` to represent the absence of text.
+
+```java
+// ❌ Wrong — returning null
+public LocalizeValue getDescription() {
+    return null;
+}
+
+// ✅ Correct — use empty() for no text
+public LocalizeValue getDescription() {
+    return LocalizeValue.empty();
+}
+
+// ✅ Correct — conditional empty
+public LocalizeValue getDescription() {
+    return hasDescription ? MyFeatureLocalize.featureDescription() : LocalizeValue.empty();
+}
+```
+
+This applies to:
+- Method return values
+- Field initializers
+- Default implementations in interfaces
+
+---
+
 ## Using `LocalizeValue` When a Component Does Not Accept It
 
 Some older APIs still take `String` instead of `LocalizeValue`. Call `#get()` to extract
