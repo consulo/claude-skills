@@ -157,6 +157,62 @@ Follow these rules while editing:
   - `EditorImpl` → `RealEditor` (Consulo's equivalent)
   - `com.intellij.*` imports → `consulo.*` equivalents
 
+#### ModCommand Framework — Do NOT Port
+
+Consulo does **not** have JetBrains' `ModCommand` framework (`ModCommandAction`,
+`ModCommandQuickFix`, `PsiBasedModCommandAction`, `PsiUpdateModCommandAction`,
+`ModPsiUpdater`, `ModCommand`, `ActionContext`, etc.). This is a newer JB abstraction
+layer over quick fixes that Consulo has not adopted.
+
+**When JB code uses ModCommand, reimplement using Consulo's existing quickfix API instead:**
+
+| JB class / pattern | Consulo replacement |
+|---|---|
+| `extends ModCommandQuickFix` | `implements LocalQuickFix` |
+| `extends PsiUpdateModCommandAction<T>` | `implements LocalQuickFix` |
+| `extends PsiBasedModCommandAction<T>` | `extends LocalQuickFixOnPsiElement` or `implements LocalQuickFix` |
+| `ModCommandAction` (as variable type) | `LocalQuickFix` |
+| `LocalQuickFix.from(modCommandAction)` | Use the fix directly (it already implements `LocalQuickFix`) |
+| `action.perform(actionContext)` | `fix.applyFix(project, descriptor)` |
+| `ModCommand.psiUpdate(...)` | Direct PSI mutation in `applyFix()` |
+| `updater.getWritable(element)` | Not needed — mutate elements directly |
+| `ActionContext.from(descriptor)` | Use `descriptor.getPsiElement()`, `project` |
+| `Presentation.of(text)` | Not applicable — just return name from `getName()` |
+| `ModCommand.nop()` | `return` early from `applyFix()` |
+
+**Do NOT create wrapper/alias classes** like `AddAnnotationModCommandAction` if a Consulo
+class already provides the same functionality (e.g., `AddAnnotationPsiFix`). Use the
+existing class directly.
+
+**Example — porting a JB ModCommand-based fix:**
+
+```java
+// JB code (ModCommand-based)
+public class MyFix extends PsiUpdateModCommandQuickFix {
+    @Override
+    protected void applyFix(@NotNull Project project, @NotNull PsiElement element,
+                            @NotNull ModPsiUpdater updater) {
+        element.delete();
+    }
+}
+
+// Consulo equivalent (LocalQuickFix-based)
+public class MyFix implements LocalQuickFix {
+    @Override
+    public LocalizeValue getName() {
+        return MyLocalize.myFixName();
+    }
+
+    @Override
+    public void applyFix(Project project, ProblemDescriptor descriptor) {
+        PsiElement element = descriptor.getPsiElement();
+        if (element != null) {
+            element.delete();
+        }
+    }
+}
+```
+
 #### Nullability
 Consulo follows a **non-null by default** convention:
 - All parameters, return types, and fields are implicitly non-null — do **not** add `@Nonnull`

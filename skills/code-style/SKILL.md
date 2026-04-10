@@ -346,6 +346,31 @@ var manager = FileEditorManager.getInstance(myProject);
 
 ---
 
+## Imports — No Static Method Imports
+
+Do **not** use static imports for methods. Always qualify method calls with the class name.
+Static imports for **constants** (e.g., `EMPTY_ARRAY`) are acceptable.
+
+```java
+// ✅ Correct — method qualified with class name
+ObjectUtil.tryCast(element, PsiAnnotation.class);
+ContainerUtil.find(list, predicate);
+PsiTreeUtil.getParentOfType(element, PsiMethod.class);
+
+// ❌ Wrong — static import for method
+import static consulo.util.lang.ObjectUtil.tryCast;
+tryCast(element, PsiAnnotation.class);
+
+// ❌ Wrong — wildcard static import for methods
+import static com.intellij.java.language.codeInsight.AnnotationUtil.*;
+isAnnotated(owner, annotation, false, false);
+
+// ✅ OK — static import for constants
+import static com.intellij.java.language.psi.CommonClassNames.JAVA_LANG_OBJECT;
+```
+
+---
+
 ## Method Parameters — No Noise, No Mutation
 
 **No `final` on parameters or local variables** unless the value is genuinely shared across
