@@ -1,0 +1,11 @@
+{
+  "name": "consulo",
+  "owner": { "name": "consulo" },
+  "plugins": [
+    {
+      "name": "consulo-skills",
+      "source": "./",
+      "description": "Shared Claude Code skills for Consulo projects"
+    }
+  ]
+}
